@@ -160,4 +160,180 @@ lispy> hel^[[D^[[C]
 
 #C预处理器
 
-  这样小的工程对于不同的操作系统编写不同的代码还行，但如果我想把我的代码发给朋友让他在不同的操作系统上帮我一下，那么就会产生很多问题。
+  这样小的工程对于不同的操作系统编写不同的代码还行，但如果我想把我的代码发给朋友让他在不同的操作系统上帮我一下，那么就会产生很多问题。最理想的就是我的代码写完后可以在任何系统，任何计算机上运行。这对C来说是个普遍的问题，我们叫它可移植性。然而并没有简单地方法解决这个问题。但C提供了叫做预处理器的机制解决这个问题
+
+  预处理器是一个可以在编译之前运行的程序。它有很多用途，很多时候我们并没有意识到我们在使用它。任何以`#`开头的行都是一个预处理命令。我们在*include*头文件时，预处理器让我们可以访问标准库和其它库。
+
+  另一个应用就是检测代码是在哪个操作系统上编译的，并由此触发不同的代码。
+
+  这也是我们想要用的方式。如果你在 wimdows 上那么就使用有 `readline` `add_history` 函数的代码，否则就用引入了`editline`头文件的代码。
+
+  声明编译器需要调用怎样的代码，我们用 `#ifdef` ,`#else` 以及 `#endif` 这样的预处理语句。它们和`if`的作用相当。这样就可以让我们的代码在不同的操作系统上编译了。
+
+  ```c
+  #include <stdio.h>
+#include <stdlib.h>
+
+/* If we are compiling on Windows compile these functions */
+#ifdef _WIN32
+#include <string.h>
+
+static char buffer[2048];
+
+/* Fake readline function */
+char* readline(char* prompt) {
+  fputs(prompt, stdout);
+  fgets(buffer, 2048, stdin);
+  char* cpy = malloc(strlen(buffer)+1);
+  strcpy(cpy, buffer);
+  cpy[strlen(cpy)-1] = '\0';
+  return cpy;
+}
+
+/* Fake add_history function */
+void add_history(char* unused) {}
+
+/* Otherwise include the editline headers */
+#else
+#include <editline/readline.h>
+#include <editline/history.h>
+#endif
+
+int main(int argc, char** argv) {
+   
+  puts("Lispy Version 0.0.0.0.1");
+  puts("Press Ctrl+c to Exit\n");
+   
+  while (1) {
+    
+    /* Now in either case readline will be correctly defined */
+    char* input = readline("lispy> ");
+    add_history(input);
+
+    printf("No you're a %s\n", input);
+    free(input);
+    
+  }
+  
+  return 0;
+}
+  ```
+#参考
+
+prompt_unix.c
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <editline/readline.h>
+#include <editline/history.h>
+
+int main(int argc, char** argv) {
+   
+  /* Print Version and Exit Information */
+  puts("Lispy Version 0.0.0.0.1");
+  puts("Press Ctrl+c to Exit\n");
+   
+  /* In a never ending loop */
+  while (1) {
+    
+    /* Output our prompt and get input */
+    char* input = readline("lispy> ");
+    
+    /* Add input to history */
+    add_history(input);
+    
+    /* Echo input back to user */    
+    printf("No you're a %s\n", input);
+
+    /* Free retrived input */
+    free(input);
+    
+  }
+  
+  return 0;
+}
+```
+
+prompt_windows.c
+
+```c
+#include <stdio.h>
+
+/* Declare a buffer for user input of size 2048 */
+static char input[2048];
+
+int main(int argc, char** argv) {
+
+  /* Print Version and Exit Information */
+  puts("Lispy Version 0.0.0.0.1");
+  puts("Press Ctrl+c to Exit\n");
+
+  /* In a never ending loop */
+  while (1) {
+
+    /* Output our prompt */
+    fputs("lispy> ", stdout);
+
+    /* Read a line of user input of maximum size 2048 */
+    fgets(input, 2048, stdin);
+
+    /* Echo input back to user */
+    printf("No you're a %s", input);
+  }
+
+  return 0;
+}
+```
+
+prompt.c
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+/* If we are compiling on Windows compile these functions */
+#ifdef _WIN32
+#include <string.h>
+
+static char buffer[2048];
+
+/* Fake readline function */
+char* readline(char* prompt) {
+  fputs(prompt, stdout);
+  fgets(buffer, 2048, stdin);
+  char* cpy = malloc(strlen(buffer)+1);
+  strcpy(cpy, buffer);
+  cpy[strlen(cpy)-1] = '\0';
+  return cpy;
+}
+
+/* Fake add_history function */
+void add_history(char* unused) {}
+
+/* Otherwise include the editline headers */
+#else
+#include <editline/readline.h>
+#include <editline/history.h>
+#endif
+
+int main(int argc, char** argv) {
+   
+  puts("Lispy Version 0.0.0.0.1");
+  puts("Press Ctrl+c to Exit\n");
+   
+  while (1) {
+    
+    /* Now in either case readline will be correctly defined */
+    char* input = readline("lispy> ");
+    add_history(input);
+
+    printf("No you're a %s\n", input);
+    free(input);
+    
+  }
+  
+  return 0;
+}
+```
