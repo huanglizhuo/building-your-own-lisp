@@ -41,5 +41,47 @@
 
 #编码语法
 
-  那么像语法的代码是什么样子的呢？
-  
+  那么像语法的代码是什么样子的呢？我们通过写一个识别(柴犬语)[the language of Shiba lnu](http://knowyourmeme.com/memes/doge)语法的代码吧。口语中多叫Doge。我们定义的语言将会像下面这样：
+
+  >形容词只包括"wow","many","so","such"
+  >名词只有"licp","language","book","build"
+  >短语是形容词后节名词
+  >Doge是0或者短语
+
+  我们可以试着先定义名词和形容词。我们用mpc_parser_t*类型定义两个短语，分别存在`Adjective`和`Noun`中。用`mpc_or`函数创建短语，并用`mpc_sym`函数包装我们的初始化字符串。
+
+  如果你眯着眼睛，你可以尝试读取代码，就好像它是我们在上面指定的规则。
+
+  ```c
+  /* Build a parser 'Adjective' to recognize descriptions */
+  mpc_parser_t* Adjective = mpc_or(4,
+    mpc_sym("wow"),
+    mpc_sym("many"),
+    mpc_sym("so"),
+    mpc_sym("such"),
+    ) ;
+
+  /* Build a parser 'Noun' to recognize things */
+  mpc_parser_t* Noun = mpc_or(
+    mpc_sym("lisp"),
+    mpc_sym("language"),
+    mpc_sym("build"),
+    mpc_sym("book"),
+    mpc_sym("c"),
+  );
+  ```
+>我怎样访问`mpc`函数？
+>现在不需要担心关于编译这章的任何实例代码。主要关注理解语法背后的东西。在下章我们会设置`mpc`并使用它建立一个和lisp相似的语言
+
+  为了定义短语我们可以参考现存的短语。我们需要用到`mpc_and`函数，用来指定一个元素被另个元素依赖。输入是我们之前定义的`Adjective`,`Noun`。这个函数还需要`mpcf_strfold` `free`参数，用来表达怎样连接或删除这样的短语。暂时先不要管参数。
+
+  ```c
+  mpc_parser_t* Phrase = mpc_and(2,mpcf_strfold,
+    Adjective,Noun,free);
+  ```
+
+  定义doge我破门必须指定0或者短语是必须的。这我们就得用到`mpc_many`函数。像之前一样，这个函数需要指定`mpcf_strfold`变量来知道怎样把它们连接起来，哪些需要忽略
+
+  >mpc_parser_t* doge = mpc_many(mpc_parser_t,Phrase);
+
+
