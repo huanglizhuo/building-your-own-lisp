@@ -84,4 +84,4 @@
 
   >mpc_parser_t* doge = mpc_many(mpc_parser_t,Phrase);
 
-
+创建一个解析器寻找0或多个解析器是很有意思的额。我们的`Doge`解析器接受任何长度的输入。这意味着它的语言是无限的。这里只有一些`Doge`可以接受的可能的短语。
