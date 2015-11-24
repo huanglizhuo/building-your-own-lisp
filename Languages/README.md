@@ -146,3 +146,93 @@
 	'a'+	One or more 'a' are required.
 	
 	<abba>	The rule called abba is required.
+
+```
+听起来很熟悉...
+
+不知道你有没有注意到`mpca_lang`的输入字符串的描述很像我解释过的语法？这是因为`mpc`用它内部的解释器解析了你的输入。而它就是像上面说的那样解析语法的。
+
+```
+
+  上面表格描述的就是我之前写的验证代码的语法。
+
+  这种指明语法的方式就是我们接下来章节要用的方法。起初看起来很吓人。语法一般比较难以理解。但接下来你会慢慢熟悉它并了解如何编写和创建它。
+
+  这节主要讲的是理论，因此如果你打算尝试一些附加题，不要太过担心正确性。想法正确是更重要的。大胆的尝试发明符号和标注吧。一些附加题可能会需要循环或递归语法结构，大胆的尝试吧。
+
+  #参考
+
+  doge_code.c
+  ```c
+#include "mpc.h"
+
+int main(int argc, char** argv) {
+
+  /* Build a parser 'Adjective' to recognize descriptions */
+  mpc_parser_t* Adjective = mpc_or(4, 
+    mpc_sym("wow"), mpc_sym("many"),
+    mpc_sym("so"),  mpc_sym("such")
+  );
+
+  /* Build a parser 'Noun' to recognize things */
+  mpc_parser_t* Noun = mpc_or(5,
+    mpc_sym("lisp"), mpc_sym("language"),
+    mpc_sym("book"), mpc_sym("build"), 
+    mpc_sym("c")
+  );
+  
+  mpc_parser_t* Phrase = mpc_and(2, mpcf_strfold, 
+    Adjective, Noun, free);
+  
+  mpc_parser_t* Doge = mpc_many(mpcf_strfold, Phrase);
+
+  /* Do some parsing here... */
+  
+  mpc_delete(Doge);
+  
+  return 0;
+  
+}
+  ```
+
+doge_grammar.c
+
+```c
+#include "mpc.h"
+
+int main(int argc, char** argv) {
+
+  mpc_parser_t* Adjective = mpc_new("adjective");
+  mpc_parser_t* Noun      = mpc_new("noun");
+  mpc_parser_t* Phrase    = mpc_new("phrase");
+  mpc_parser_t* Doge      = mpc_new("doge");
+
+  mpca_lang(MPCA_LANG_DEFAULT,
+    "                                           \
+      adjective : \"wow\" | \"many\"            \
+                |  \"so\" | \"such\";           \
+      noun      : \"lisp\" | \"language\"       \
+                | \"book\" | \"build\" | \"c\"; \
+      phrase    : <adjective> <noun>;           \
+      doge      : <phrase>*;                    \
+    ",
+    Adjective, Noun, Phrase, Doge);
+
+  /* Do some parsing here... */
+
+  mpc_cleanup(4, Adjective, Noun, Phrase, Doge);
+  
+  return 0;
+  
+}
+```
+
+#附加题
+› Write down some more examples of strings the Doge language contains.
+› Why are there back slashes \ in front of the quote marks " in the grammar?
+› Why are there back slashes \ at the end of the line in the grammar?
+› Describe textually a grammar for decimal numbers such as 0.01 or 52.221.
+› Describe textually a grammar for web URLs such as http://www.buildyourownlisp.com.
+› Describe textually a grammar for simple English sentences such as the cat sat on the mat.
+› Describe more formally the above grammars. Use |, *, or any symbols of your own invention.
+› If you are familiar with JSON, textually describe a grammar for it.
