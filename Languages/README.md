@@ -95,4 +95,54 @@
     "so c"
   ```
 
-  通过用用`mpc`其它函数，我们可以慢慢构建一个可以解析更多复杂语言的解析器。代码读起来有些像语法，但添加复杂性后就会变得更加凌乱。因为这个
+  通过用用`mpc`其它函数，我们可以慢慢构建一个可以解析更多复杂语言的解析器。代码读起来有些像语法，但添加复杂性后就会变得更加凌乱。所以这种方式并不是一个简单的工作。一系列的可以用来构建简单结构来使重复的工作变得简单的函数都再mpc的仓库有文档。这是构建复杂语言的好方法，它允许构建更细粒度的控制，但并不是我们需要的。
+
+#自然语法
+
+  `mpc`允许我们用更自然的方式写语法。而不是像C函数那样看起来不是很像语法的方式，我们可以用过一个长字符串指明一个完整的东西。用这样的方式可以不用关心怎样连接或拆分输入，只需把它交给`mpcf_strfold` `free`，它可以自动帮我们完成这些工作。
+
+  下面是我们用这种方式来重建一下之前的例子。
+
+  ```
+  mpc_parser_t* Adjective = mpc_new("adjective");
+  mpc_parser_t* Noun = mpc_new("noun");
+  mpc_parser_t* Phrase = mpc_new("phrase");
+  mpc_parser_t* Doge = mpc_new("doge");
+  mpca_lang(MPCA_LANG_DEFAULT,
+  "                                           \
+    adjective : \"wow\" | \"many\"            \
+              |  \"so\" | \"such\";           \
+    noun      : \"lisp\" | \"language\"       \
+              | \"book\" | \"build\" | \"c\"; \
+    phrase    : <adjective> <noun>;           \
+    doge      : <phrase>*;                    \
+  ",
+  Adjective, Noun, Phrase, Doge);
+
+  /* Do some parsing here... */
+
+  mpc_cleanup(4, Adjective, Noun, Phrase, Doge);
+  ```
+
+  这种方式不用明白那一长串的字符串的附加含义，这种形式是一种很清楚的语法。要明白所有的符号的含义太麻烦了。
+
+  另一个需要注意的就是现在我们需要两步来完成。首先用`mpc_new`创建和命名一些规则然后通过`mpca_lang`定义它们。
+
+  `mpc_lang`的第一个参数是可选的标志。这里我们用默认的。第二个是一个长的多行的C字符串。这是语法规范。它包含很多重写规则。每个规则都是以`:`左边的名字作为规则名称，右边以`:`结尾的是定义。
+
+  这个用来定义规则的特殊符号的用法如下：
+
+
+	"ab"	The string ab is required.
+	
+	'a'	The character a is required.
+	
+	'a' 'b'	First 'a' is required, then 'b' is required.
+	
+	'a' | 'b'	Either 'a' is required, or 'b' is required.
+	
+	'a'*	Zero or more 'a' are required.
+	
+	'a'+	One or more 'a' are required.
+	
+	<abba>	The rule called abba is required.
