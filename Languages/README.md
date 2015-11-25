@@ -229,6 +229,7 @@ int main(int argc, char** argv) {
 
 #附加题
 › Write down some more examples of strings the Doge language contains.
+> 多写几个Doge语言的例子。
 › Why are there back slashes \ in front of the quote marks " in the grammar?
 › Why are there back slashes \ at the end of the line in the grammar?
 › Describe textually a grammar for decimal numbers such as 0.01 or 52.221.
