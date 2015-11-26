@@ -228,12 +228,10 @@ int main(int argc, char** argv) {
 ```
 
 #附加题
-› Write down some more examples of strings the Doge language contains.
 > 多写几个Doge语言的例子。
-› Why are there back slashes \ in front of the quote marks " in the grammar?
-› Why are there back slashes \ at the end of the line in the grammar?
-› Describe textually a grammar for decimal numbers such as 0.01 or 52.221.
-› Describe textually a grammar for web URLs such as http://www.buildyourownlisp.com.
-› Describe textually a grammar for simple English sentences such as the cat sat on the mat.
-› Describe more formally the above grammars. Use |, *, or any symbols of your own invention.
-› If you are familiar with JSON, textually describe a grammar for it.
+> 为什么在引用的语法前后的引号前面会有反斜杠
+> 为小数描述一个语法
+> 为url写一个语法
+> 写个简单的英文语法比如 cat sat on the mat
+> 用`|`,`*`或者其它的符号把上面语法描述的更规范
+> 如果你对JSON熟悉，写个描述它的语法
