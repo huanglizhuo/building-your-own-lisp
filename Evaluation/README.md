@@ -32,4 +32,29 @@
 
   `children`是一个`mpc_ast_t**`类型。这是一个双重指针，它并没有看起来那么吓人，我们在后面的章节中会详细的讲它的细节。现在你只需要知道它是子节点的列表就好了。
 
-  我们可以通过
+  我们可以用数组访问这个属性来访问节点。只需要像这样`children[0]`就可以访问了，注意C的计数是从`0`开始的。
+
+  因为`mpc_ast_t*`是一个指向结构体的指针，所以访问它的属性时稍微有些不一样。得使用`->`而不是`.`。
+
+  ```c
+    mpc_ast_t* a = r.output;
+    printf("Tag: %s\n",a->tag);
+    printf("Contents: %s\n",a->contents);
+    printf("Number of children: %i\n",a->children_num);
+    mpc_ast_t* c0 = a->children[0];
+    printf("First Child Tag: %s\n",c0->tag);
+    printf("First Child Contents: %s\n",c0->contents);
+    printf("First Child Children: %i\n",c0->children_num);
+  ```
+
+#递归
+
+  树形结构有个特点，就是它们可以指向树。每个节点的子节点都是树，而这个树的子节点还是树。就像我们的语言和复写规则，这些结构包含和自己结构一样的子机构。
+
+  这种重复子结构的模式可以不断重复。显然我们想要一个可以接受任何树的函数，我们就不能只搜寻一些节点就结束，我们需要让它在所有深度的树上都工作。
+
+  幸运的是我们可以用递归来做到这点。
+
+  递归函数的一个简单解释就是在某些条件下自己调用自己。
+
+
