@@ -108,3 +108,38 @@ lispy> * 10 (+ 1 51)
   首先一个节点如果被打上了`number`标签，那它永远都是number，没有子节点，而且可以直接转位整数。这是递归的基本情形。
 
   如果标签是`expr`，我们就得看看它的第二个子节点(因为它的第一个子节点永远都是`'('`)是什么操作符。然后我们需要把这个操作符作用到剩余的子节点，最后的节点总是`')'`，这是我们的递归条件
+
+  检测节点的标签，或者从节点获得节点的数值时，我们需要充分利用`tag``contents`属性。它们都是字符串，因此我来讲一字符串的操作函数。
+
+  `atoi`  把`char*`转成`long`
+
+  `strcmp`  接受两个`char*`如果相等返回`0`
+
+  `strstr`  接受两个`char*`返回第二个字符串在第一个字符串中的位置，如果第二个字符串不是第一个字符串的子串则返回0
+
+  用`strcmp`检查有的是哪个操作符，用`strstr`检查标签是否包含某些子串。结合我们的计算和递归后函数应该像下面这样：
+
+  ```c
+long eval(mpc_ast_t* t) {
+  
+  /* If tagged as number return it directly. */ 
+  if (strstr(t->tag, "number")) {
+    return atoi(t->contents);
+  }
+  
+  /* The operator is always second child. */
+  char* op = t->children[1]->contents;
+  
+  /* We store the third child in `x` */
+  long x = eval(t->children[2]);
+  
+  /* Iterate the remaining children and combining. */
+  int i = 3;
+  while (strstr(t->children[i]->tag, "expr")) {
+    x = eval_op(x, op, eval(t->children[i]));
+    i++;
+  }
+  
+  return x;  
+}
+  ```
