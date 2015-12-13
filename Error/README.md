@@ -57,3 +57,5 @@ enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
   ```
 
 #lisp类型函数
+
+  我们的`lval`类型基本准备好了但不像之前的`long`类型，我们的类型没有一个创建它的正确方法。为了做到这点，我们申明了两个函数
