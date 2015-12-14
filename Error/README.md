@@ -58,4 +58,57 @@ enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
 
 #lisp类型函数
 
-  我们的`lval`类型基本准备好了但不像之前的`long`类型，我们的类型没有一个创建它的正确方法。为了做到这点，我们申明了两个函数
+  我们的`lval`类型基本准备好了但不像之前的`long`类型，我们的类型没有一个创建它的正确方法。为了做到这点，我们声明了两个函数用来把`lval`构造成要么是 error 要么是 number 类型.
+
+  ```c
+lval lavl_num(long x){
+    lval v;
+    v.type = LVAL_NUM;
+    v.num = x;
+    return v;    
+}
+
+lval lval_err(int x){
+    lval v;
+    v.type = LVAL_ERR;
+    v.err = x;
+    return v;
+}
+  ```
+  
+  这两个函数都是创建一个`lval`变量，然后根据接受的参数给它们赋值。
+
+  因为`lval`函数可以是 error 或者 number 中的任意一个，所以我们不能简单的用`printf`来输出它了。
+我们想要根据不同的类型决定不同的表现。在C中可以用`switch`语句做到这一点。它接受一个值作为输入并和其它已知的值做比较，称为case 。当比较的值相同时则执行对应的代码，直到碰到`break`语句。
+
+  这样我们就可以打印任何`lval`的值了。
+
+```c
+
+/* Print an "lval" */
+void lval_print(lval v) {
+  switch (v.type) {
+    /* In the case the type is a number print it */
+    /* Then 'break' out of the switch. */
+    case LVAL_NUM: printf("%li", v.num); break;
+
+    /* In the case the type is an error */
+    case LVAL_ERR:
+      /* Check what type of error it is and print it */
+      if (v.err == LERR_DIV_ZERO) {
+        printf("Error: Division By Zero!");
+      }
+      if (v.err == LERR_BAD_OP)   {
+        printf("Error: Invalid Operator!");
+      }
+      if (v.err == LERR_BAD_NUM)  {
+        printf("Error: Invalid Number!");
+      }
+    break;
+  }
+}
+
+/* Print an "lval" followed by a newline */
+void lval_println(lval v) { lval_print(v); putchar('\n'); }
+```
+
