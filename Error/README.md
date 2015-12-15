@@ -111,4 +111,30 @@ void lval_print(lval v) {
 /* Print an "lval" followed by a newline */
 void lval_println(lval v) { lval_print(v); putchar('\n'); }
 ```
+#计算错误
 
+  现在我们知道怎样使用`lval`函数了，接下来需要改变我们的计算函数，让它接收`lval`类型而不是`long`
+
+  在`eval_op`函数中，如果我们遇到 error 我们应该立即返回，只有在两个参数都是数字时才进行计算。在遇到除零时，我们应该返回错误而不是试着去计算。这会修复这章开头提过的崩溃。
+
+  ```c
+lval eval_op(lval x, char* op, lval y) {
+
+  /* If either value is an error return it */
+  if (x.type == LVAL_ERR) { return x; }
+  if (y.type == LVAL_ERR) { return y; }
+
+  /* Otherwise do maths on the number values */
+  if (strcmp(op, "+") == 0) { return lval_num(x.num + y.num); }
+  if (strcmp(op, "-") == 0) { return lval_num(x.num - y.num); }
+  if (strcmp(op, "*") == 0) { return lval_num(x.num * y.num); }
+  if (strcmp(op, "/") == 0) {
+    /* If second operand is zero return error */
+    return y.num == 0 
+      ? lval_err(LERR_DIV_ZERO) 
+      : lval_num(x.num / y.num);
+  }
+
+  return lval_err(LERR_BAD_OP);
+}
+  ```
