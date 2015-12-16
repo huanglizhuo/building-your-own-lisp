@@ -2,3 +2,6 @@
 * [安装](Installation/README.md)
 * [基础](Basics/README.md)
 * [交互式提示](An-Interactivew-Prompt/README.md)
+* [语言](Languages/README.md)
+* [解析](Parsing/README.md)
+* [计算](Evaluation/README.md)
