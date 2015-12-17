@@ -138,3 +138,65 @@ lval eval_op(lval x, char* op, lval y) {
   return lval_err(LERR_BAD_OP);
 }
   ```
+
+  这里的`?`干了什么？
+
+  你可能注意到,我们在判断除法指令的第二个参数是否是0时用了`?`符号，并跟着一个`:`。这是一个三元操作符，它允许你仅用一行代码进行条件测试。
+
+  它工作过程就像`<confition> ? <then> : <else>`。也就是说，如果条件为真就返回`?`后面的否则返回`:`后面的。
+
+  有的人不喜欢这个操作符，他们认为这会使代码不清晰。
+
+  我们需要给`eval`函数也赋予类似的操作。因为我们的`eval_op`定义的很强健，所以我们只需要给数字转换函数添加错误条件。
+
+  用`strtol`函数将字符串转为`long`。这允许我们检查一个特殊的变量`errno`来确定转换是正确的。这比我们之前用的`atoi`函数更强健。
+
+  ```c
+lval eval(mpc_ast_t* t) {
+  
+  if (strstr(t->tag, "number")) {
+    /* Check if there is some error in conversion */
+    errno = 0;
+    long x = strtol(t->contents, NULL, 10);
+    return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
+  }
+  
+  char* op = t->children[1]->contents;  
+  lval x = eval(t->children[2]);
+  
+  int i = 3;
+  while (strstr(t->children[i]->tag, "expr")) {
+    x = eval_op(x, op, eval(t->children[i]));
+    i++;
+  }
+  
+  return x;  
+}
+  ```
+
+  最后的这一小步是改变我们新定义的`lval`类型的打印函数，使之可以正确打印。
+
+  ```c
+    lval result = eval(r.output);
+    lval_println(result);
+    mpc_ast_delete(r.output);
+  ```
+
+  好了做完了！现在试试我们的程序看它是否会在除0时崩溃
+
+  ```
+lispy> / 10 0
+Error: Division By Zero!
+lispy> / 10 2
+5
+  ```
+
+##plumbing
+
+  有些人会对现在的过程很不舒服。你可能觉得你只是按照指导做，但并不明白在这背后的原理。
+
+  If this is the case I want to reassure you that you are doing well. If you don't understand the internals it's because I may not have explained everything in sufficient depth. This is okay.
+
+  To be able to progress and get code to work under these conditions is a great skill in programming, and if you've made it this far it shows you have it.
+
+  在编程中我们称之为plumbing。粗略来讲就是按照指示把很多库或者组件连接到一起，但并不明白它们内部是如何工作的。
