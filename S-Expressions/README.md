@@ -84,6 +84,10 @@ mpca_lang(MPCA_LANG_DEFAULT,
 
 ##表达式结构
 
-  
+ 我们需要把 S 表达式存储在`lval` 中。这意味着我们需要存储符号和数字。我们需要在 `enum` 中添加两个新的 `lval` 类型。首先是一个 `LVAL_SYM`，用来代表类似 `+` 等操作符。另一个是 `LVAL_SEXPR` 用来表示 S 表达式。
+
+> enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR};
+
+  S 表达式是其它变量的
 
 
