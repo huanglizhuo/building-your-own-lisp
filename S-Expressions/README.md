@@ -90,6 +90,28 @@ mpca_lang(MPCA_LANG_DEFAULT,
 
   S 表达式是一个长度可变的列表，用来存储其它值。这节开头已近说过，我们不能创建长度可变的结构体，因此我们需要使用指针。我们将会穿创建一个 `cell` 的指针指向我们存储 `lval*` 列表的地址。更直白一点就是指向其它有效 `lval` 地址的指针。这个属性必须是一个双重指针 `lval**` 。一个指向 `lval` 指针的指针。我们还得记录列表中有多少 `lval*` ，因此还得添加一个 `count` 属性记录数量。
 
+  我们打算用字符串表示符号，并且把 error 的表示也用字符串。这样我们就可以存储一个完整的错误信息而不是一个错误码了。这样我们的错误报告就可以更易读也更灵活，这样我们就可以摆脱原来的错误 `enum` 了。修改后的 `lval` 如下。
 
+```c
+typedef struct lval{
+	int type;
+	long num;
+	char* err;
+	char* sym;
+	int count;
+	struct lval** cell;
+} lval;
+```
+存在三重指针吗？
+
+有个很老的程序员的笑话，是说你可以从一个 C 程序员指针后面有多少 * 来判断他的水平。
+
+初级程员或许只会用 `char*` 或者奇怪的 `int *` ，因此可以称之为一星程序员。大多数的中级程序员会用双重指针比如 `lval**`，这类程序员被称之为二星程序员。使用三重指针是很特殊的。你读这样的代码，感觉有很多错误，又感觉代码很庞大，这样的代码跟本不是写给凡人看的。像这样的人可以称之为三星程序员，这样的人是相当稀有的。就我所知，四重指针还从未见过。
+
+what is that struct keyword doing there?
+
+Our new definition of lval needs to contain a reference to itself. This means we have to slightly change how it is defined. Before we open the curly brackets we can put the name of the struct, and then refer to this inside the definition using struct lval. Even though a struct can refer to its own type, it must only contain pointers to its own type, not its own type directly. Otherwise the size of the struct would refer to itself, and grow infinite in size when you tried to calculate it!
+
+##构造函数和析构函数
 
 
